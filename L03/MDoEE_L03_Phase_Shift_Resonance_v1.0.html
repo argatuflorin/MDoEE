@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Phase Shift Interactive Lab — Monitoring and Diagnosis of Electrical Equipment</title>
+<style>
+:root{
+  --bg:#091422;--panel:#10233a;--panel2:#152c45;--line:#284a65;--text:#eaf3ff;--muted:#abc1d7;
+  --a:#55d6ff;--b:#ffbd69;--green:#6ae0ae;--red:#ff7a8b;--violet:#c49cff;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at 85% -10%,#22456a,transparent 32%),var(--bg);color:var(--text);line-height:1.55}
+header,.wrap{max-width:1260px;margin:auto;padding:22px}
+header{padding-top:34px}
+h1{font-size:clamp(2rem,4vw,3.25rem);line-height:1.1;margin:.2rem 0 .8rem}
+h2{font-size:1.5rem;margin:0 0 12px}
+h3{font-size:1.08rem;margin:0 0 8px;color:#f5fbff}
+p{margin:.35rem 0 .9rem}
+small,.sub{color:var(--muted)}
+.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.18em;color:var(--a);text-transform:uppercase}
+.lead{font-size:1.08rem;max-width:980px;color:#c9d8e8}
+.pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.pill{padding:6px 11px;border-radius:999px;border:1px solid #355a78;background:#15314b;color:#dceafb;font-size:.84rem}
+.card{background:linear-gradient(160deg,#122841,#0e2035);border:1px solid #2a4a64;border-radius:18px;padding:22px;margin-bottom:20px;box-shadow:0 16px 48px rgba(0,0,0,.18)}
+.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,1fr);gap:18px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.canvasbox{background:#081726;border:1px solid #2a4a64;border-radius:14px;overflow:hidden}
+.canvasbox svg{display:block;width:100%;height:auto}
+.charttitle{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;font-weight:700;color:#e1eefc}
+.section-index{font-size:.76rem;text-transform:uppercase;letter-spacing:.16em;color:#7edcff;font-weight:800;margin:0 0 6px}
+.formula{font-family:Georgia,serif;font-size:1.18rem;text-align:center;background:#0b2032;border-left:3px solid var(--a);border-radius:8px;padding:12px 10px;overflow-x:auto}
+.note{border-left:3px solid var(--green);background:#112c37;border-radius:8px;padding:12px 14px;color:#dbf3e9}
+.warn{border-left-color:var(--b);background:#382b1f;color:#ffead4}
+.metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.metric{background:#0b1b2d;border:1px solid #2e5168;border-radius:11px;padding:10px 12px}
+.metric strong{display:block;font-size:1.35rem;font-variant-numeric:tabular-nums}
+.metric small{color:var(--muted)}
+.control{margin:12px 0}
+.control label{display:flex;justify-content:space-between;gap:12px;font-weight:700;font-size:.95rem}
+input[type=range]{width:100%;accent-color:var(--a);cursor:pointer}
+input[type=number],input[type=text],select,textarea{width:100%;background:#091b2e;color:#fff;border:1px solid #3b5a74;border-radius:10px;padding:10px 11px;font-size:1rem}
+textarea{min-height:84px;resize:vertical}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.btn{cursor:pointer;border:1px solid #4d7895;background:#1a4562;color:#fff;border-radius:10px;padding:10px 14px;font-weight:700}
+.btn.primary{background:#1c7ea4}
+.btn.ghost{background:#122b45}
+.btn.active{background:#145f7e;border-color:#79d8ff}
+.inline-preset{display:flex;flex-wrap:wrap;gap:8px}
+.step{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #28455c}
+.step:last-child{border-bottom:0}
+.stepnum{min-width:34px;text-align:center;padding:4px 8px;border-radius:10px;background:#1f4d67;color:#86e8ff;font-weight:800}
+.task{background:#0d2135;border:1px solid #375772;border-radius:14px;padding:14px}
+.task h4{margin:.1rem 0 .35rem;color:#f7fbff}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#14344d;border:1px solid #375b76;color:#cde4fb;font-size:.8rem}
+.legend{display:inline-flex;align-items:center;gap:7px;margin-right:10px}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block}
+.quiz{background:#0d2135;border:1px solid #3a5873;border-radius:14px;padding:14px;margin-top:12px}
+.quiz label{display:block;margin:7px 0;cursor:pointer}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 15px}
+.tab{padding:9px 12px;border-radius:10px;border:1px solid #446582;background:#122b45;color:#dce8f8;cursor:pointer}
+.tab.active{background:#145a79;border-color:#70d5ff}
+.hidden{display:none !important}
+.footer{padding:10px 0 36px;text-align:center;color:#8ea8bb;font-size:.84rem}
+svg text{font-family:Segoe UI,Arial,sans-serif}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;background:#0b1b2d;border-radius:12px;overflow:hidden}
+th,td{padding:10px 12px;border:1px solid #264660;text-align:left}
+th{background:#14314a}
+.case{padding:14px;border-radius:14px;background:#0c1f33;border:1px solid #34516a}
+@media(max-width:900px){.grid,.two,.three{grid-template-columns:1fr}header,.wrap{padding-left:14px;padding-right:14px}.card{padding:16px}.metric-grid{grid-template-columns:1fr 1fr}}
+@media print{
+  body{background:#fff;color:#000}.card{background:#fff;box-shadow:none;break-inside:avoid}.btn,.actions,input[type=range]{display:none}.sub,.lead,small{color:#333}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Monitoring and Diagnosis of Electrical Equipment · Interactive HTML Lab</div>
+  <h1>Phase Shift of Sinusoidal Signals <span style="color:var(--a)">— Interactive Lecture and Student Lab</span></h1>
+  <p class="lead">This version expands the original lesson into a more complete English-language mini-lab. Students can adjust signals, observe waveform and phasor relationships, explore RC/RL/RLC behavior, investigate resonance, answer questions, and collect screenshots as evidence of completion.</p>
+  <div class="pills">
+    <span class="pill">01 · Fundamentals</span>
+    <span class="pill">02 · Waveform + Phasor Explorer</span>
+    <span class="pill">03 · RC and RL Case Studies</span>
+    <span class="pill">04 · Series RLC Resonance</span>
+    <span class="pill">05 · Student Tasks</span>
+    <span class="pill">06 · Quiz + Diagnostic Context</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card">
+    <div class="section-index">01 · Core idea</div>
+    <h2>What is phase shift?</h2>
+    <div class="two">
+      <div>
+        <p>When two sinusoidal signals have the <b>same frequency</b>, phase shift is the angular displacement between them. It tells us whether one signal reaches the same event earlier or later than the other.</p>
+        <div class="formula">
+          <span style="color:var(--a)">u<sub>1</sub>(t)=A<sub>1</sub>sin(2πft)</span><br>
+          <span style="color:var(--b)">u<sub>2</sub>(t)=A<sub>2</sub>sin(2πft+φ)</span>
+        </div>
+        <p>In this lesson, <b>φ &gt; 0</b> means signal <span style="color:var(--b)">u<sub>2</sub></span> <b>leads</b> signal <span style="color:var(--a)">u<sub>1</sub></span>. If <b>φ &lt; 0</b>, then <span style="color:var(--b)">u<sub>2</sub></span> <b>lags</b>.</p>
+      </div>
+      <div>
+        <div class="note"><b>Why it matters in monitoring and diagnosis:</b> phase relationships help engineers understand power factor, filter behavior, sensor conditioning, resonance, and abnormal equipment behavior in electrical systems.</div>
+        <p class="sub">One full cycle corresponds to <b>360° = 2π rad</b>. A quarter cycle corresponds to <b>90°</b>. If frequency changes while phase angle remains fixed, the equivalent time shift changes.</p>
+        <div class="warn"><b>Important distinction:</b> phase shift is not the same as amplitude difference, and it is not frequency mismatch. If frequencies differ, the phase angle does not remain constant — it <i>slips</i> over time.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-index">02 · Interactive signal explorer</div>
+    <h2>Waveforms and phasors tell the same story</h2>
+    <div class="grid">
+      <div>
+        <div class="canvasbox">
+          <div class="charttitle">
+            <span>Signals in the time domain</span>
+            <span class="sub"><span class="legend"><i class="dot" style="background:var(--a)"></i>u<sub>1</sub></span><span class="legend"><i class="dot" style="background:var(--b)"></i>u<sub>2</sub></span></span>
+          </div>
+          <svg id="waveSvg" viewBox="0 0 760 315" aria-label="Waveforms"></svg>
+        </div>
+        <p class="sub">The dashed markers indicate equivalent zero-crossings with positive slope. The horizontal bracket shows the signed time shift Δt associated with the selected phase shift.</p>
+        <div class="canvasbox">
+          <div class="charttitle">Phasor diagram</div>
+          <svg id="phasorSvg" viewBox="0 0 760 250" aria-label="Phasor diagram"></svg>
+        </div>
+      </div>
+      <div>
+        <div class="control"><label for="phase">Phase shift φ <output id="phaseOut">60°</output></label><input id="phase" type="range" min="-180" max="180" step="1" value="60"></div>
+        <div class="control"><label for="freq">Common frequency f <output id="freqOut">50 Hz</output></label><input id="freq" type="range" min="1" max="100" step="1" value="50"></div>
+        <div class="control"><label for="amp1">Amplitude A<sub>1</sub> <output id="amp1Out">1.0</output></label><input id="amp1" type="range" min="0.3" max="1.5" step="0.1" value="1"></div>
+        <div class="control"><label for="amp2">Amplitude A<sub>2</sub> <output id="amp2Out">1.0</output></label><input id="amp2" type="range" min="0.3" max="1.5" step="0.1" value="1"></div>
+        <div class="actions">
+          <button class="btn primary" id="playBtn">⏸ Pause</button>
+          <button class="btn" id="resetBtn">↺ Reset</button>
+          <button class="btn" id="slowBtn">🐢 0.25×</button>
+        </div>
+        <div class="metric-grid">
+          <div class="metric"><small>Period T</small><strong id="periodOut">20.00 ms</strong></div>
+          <div class="metric"><small>Signed Δt</small><strong id="dtOut">-3.33 ms</strong></div>
+          <div class="metric"><small>Angle in radians</small><strong id="radOut">1.047 rad</strong></div>
+          <div class="metric"><small>Relationship</small><strong id="statusOut" style="font-size:1rem">u₂ leads u₁</strong></div>
+        </div>
+        <p class="formula">Δt = - φ / (360° · f)</p>
+        <div class="inline-preset">
+          <button class="btn ghost sig-preset" data-phase="0">0°</button>
+          <button class="btn ghost sig-preset" data-phase="90">+90°</button>
+          <button class="btn ghost sig-preset" data-phase="-90">−90°</button>
+          <button class="btn ghost sig-preset" data-phase="180">180°</button>
+        </div>
+        <div class="note" style="margin-top:14px"><b>Teaching tip:</b> ask students to find the same phase angle in three forms: <b>degrees</b>, <b>radians</b>, and <b>time shift</b>. Then change the frequency and discuss why Δt changes although φ stays constant.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-index">03 · From angle to measurement</div>
+    <h2>How is phase shift measured with an oscilloscope?</h2>
+    <div class="two">
+      <div>
+        <div class="step"><span class="stepnum">1</span><div>Connect both signals to separate channels and use a proper reference/ground arrangement.</div></div>
+        <div class="step"><span class="stepnum">2</span><div>Choose two <b>equivalent points</b> on the two waveforms, such as zero-crossings with the same slope.</div></div>
+        <div class="step"><span class="stepnum">3</span><div>Measure the period <b>T</b> and the time difference <b>Δt</b>.</div></div>
+        <div class="step"><span class="stepnum">4</span><div>Convert time into angle using <b>φ = -360°·Δt/T</b> in the sign convention used in this simulator.</div></div>
+      </div>
+      <div>
+        <div class="note"><b>Equivalent expression:</b> φ = 2πfΔt with sign chosen according to the lead/lag definition.</div>
+        <div class="warn" style="margin-top:12px"><b>Common mistake:</b> comparing non-equivalent points, such as a zero-crossing on one waveform with a peak on the other waveform. This gives a wrong angle.</div>
+        <div class="table-wrap" style="margin-top:14px">
+          <table>
+            <thead><tr><th>Phase angle</th><th>At 50 Hz</th><th>At 1 kHz</th></tr></thead>
+            <tbody>
+              <tr><td>30°</td><td>1.67 ms</td><td>83.3 μs</td></tr>
+              <tr><td>90°</td><td>5.00 ms</td><td>250 μs</td></tr>
+              <tr><td>180°</td><td>10.00 ms</td><td>500 μs</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-index">04 · RC, RL and RLC study</div>
+    <h2>Interactive circuit cases</h2>
+    <div class="tabs">
+      <button class="tab circuit-tab active" data-circuit="rc">RC (output on C)</button>
+      <button class="tab circuit-tab" data-circuit="rl">RL (output on L)</button>
+      <button class="tab circuit-tab" data-circuit="rlc">Series RLC resonance</button>
+    </div>
+
+    <div id="panel-rc" class="circuit-panel">
+      <div class="grid">
+        <div>
+          <div class="canvasbox"><div class="charttitle">RC low-pass circuit</div><svg id="rcCircuitSvg" viewBox="0 0 700 230"></svg></div>
+          <div class="canvasbox" style="margin-top:14px"><div class="charttitle">Input and output waveforms</div><svg id="rcWaveSvg" viewBox="0 0 740 230"></svg></div>
+        </div>
+        <div>
+          <div class="three" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+            <div><label>R (Ω)</label><input type="number" id="rcR" value="1000" min="1" step="10"></div>
+            <div><label>C (nF)</label><input type="number" id="rcC" value="100" min="0.1" step="1"></div>
+            <div><label>f (Hz)</label><input type="number" id="rcF" value="1000" min="0.1" step="10"></div>
+          </div>
+          <div class="actions"><button class="btn" id="rcReset">Reset RC</button></div>
+          <div class="metric-grid">
+            <div class="metric"><small>Cutoff frequency</small><strong id="rcCutoff">1591.55 Hz</strong></div>
+            <div class="metric"><small>|H|</small><strong id="rcGain">0.847</strong></div>
+            <div class="metric"><small>Phase of output</small><strong id="rcPhase">-32.14°</strong></div>
+            <div class="metric"><small>Time shift</small><strong id="rcDt">0.089 ms</strong></div>
+          </div>
+          <p class="formula" id="rcFormula">H(jω)=1/(1+jωRC)</p>
+          <p id="rcExplain" class="sub">The output on the capacitor lags the input. As frequency increases, the capacitor voltage magnitude decreases.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="panel-rl" class="circuit-panel hidden">
+      <div class="grid">
+        <div>
+          <div class="canvasbox"><div class="charttitle">RL high-pass style case (output on L)</div><svg id="rlCircuitSvg" viewBox="0 0 700 230"></svg></div>
+          <div class="canvasbox" style="margin-top:14px"><div class="charttitle">Input and output waveforms</div><svg id="rlWaveSvg" viewBox="0 0 740 230"></svg></div>
+        </div>
+        <div>
+          <div class="three" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+            <div><label>R (Ω)</label><input type="number" id="rlR" value="100" min="0.1" step="1"></div>
+            <div><label>L (mH)</label><input type="number" id="rlL" value="100" min="0.01" step="1"></div>
+            <div><label>f (Hz)</label><input type="number" id="rlF" value="100" min="0.1" step="10"></div>
+          </div>
+          <div class="actions"><button class="btn" id="rlReset">Reset RL</button></div>
+          <div class="metric-grid">
+            <div class="metric"><small>Corner frequency</small><strong id="rlCorner">159.15 Hz</strong></div>
+            <div class="metric"><small>|H|</small><strong id="rlGain">0.532</strong></div>
+            <div class="metric"><small>Phase of output</small><strong id="rlPhase">57.86°</strong></div>
+            <div class="metric"><small>Time shift</small><strong id="rlDt">-1.607 ms</strong></div>
+          </div>
+          <p class="formula">H(jω)=jωL/(R+jωL)</p>
+          <p class="sub">In this example the output is taken across the inductor. At low frequency the output leads strongly; at very high frequency its phase tends toward 0°.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="panel-rlc" class="circuit-panel hidden">
+      <div class="grid">
+        <div>
+          <div class="canvasbox"><div class="charttitle">Series RLC circuit</div><svg id="rlcCircuitSvg" viewBox="0 0 700 230"></svg></div>
+          <div class="canvasbox" style="margin-top:14px"><div class="charttitle">Current magnitude versus frequency</div><svg id="rlcMagSvg" viewBox="0 0 760 260"></svg></div>
+          <div class="canvasbox" style="margin-top:14px"><div class="charttitle">Current phase versus frequency</div><svg id="rlcPhaseSvg" viewBox="0 0 760 240"></svg></div>
+        </div>
+        <div>
+          <div class="three" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+            <div><label>R (Ω)</label><input type="number" id="rlcR" value="30" min="0.1" step="1"></div>
+            <div><label>L (mH)</label><input type="number" id="rlcL" value="50" min="0.01" step="1"></div>
+            <div><label>C (µF)</label><input type="number" id="rlcC" value="10" min="0.001" step="0.1"></div>
+          </div>
+          <div class="control"><label for="rlcFreq">Selected operating frequency <output id="rlcFreqOut">225 Hz</output></label><input type="range" id="rlcFreq" min="10" max="3000" step="1" value="225"></div>
+          <div class="actions"><button class="btn" id="rlcSetRes">Jump to resonance</button><button class="btn" id="rlcReset">Reset RLC</button></div>
+          <div class="metric-grid">
+            <div class="metric"><small>Resonant frequency f₀</small><strong id="rlcF0">225.08 Hz</strong></div>
+            <div class="metric"><small>Impedance at f</small><strong id="rlcZ">30.00 Ω</strong></div>
+            <div class="metric"><small>Current magnitude (for 1 V)</small><strong id="rlcI">0.0333 A</strong></div>
+            <div class="metric"><small>Current phase</small><strong id="rlcPhi">0.00°</strong></div>
+          </div>
+          <div class="note"><b>Resonance concept:</b> in a series RLC circuit, resonance occurs when <b>X<sub>L</sub>=X<sub>C</sub></b>. Then the reactive effects cancel, impedance becomes minimal, current is maximal, and the current is in phase with the source voltage.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-index">05 · Student activity</div>
+    <h2>Guided lab tasks and screenshot evidence</h2>
+    <div class="note">A practical way to use this HTML in class is to ask students to <b>set the required parameters</b>, then take <b>screenshots</b> that clearly show the controls and the result. Each screenshot becomes evidence that the task was completed correctly.</div>
+    <div class="three" style="margin-top:14px">
+      <div class="task">
+        <span class="badge">Task 1 · Signal explorer</span>
+        <h4>Lead/lag identification</h4>
+        <p>Set <b>f = 50 Hz</b>, <b>A₁ = A₂ = 1</b>, and adjust the phase shift so that <b>u₂ lags u₁ by 90°</b>.</p>
+        <p><b>Deliver:</b> one screenshot and the value of Δt in ms.</p>
+        <input id="t1Answer" type="text" placeholder="Write the expected Δt here...">
+      </div>
+      <div class="task">
+        <span class="badge">Task 2 · RC</span>
+        <h4>Observe an RC low-pass response</h4>
+        <p>Choose <b>R = 1 kΩ</b> and <b>C = 100 nF</b>. Set a frequency <b>above cutoff</b> and observe how the output amplitude and phase change.</p>
+        <p><b>Deliver:</b> one screenshot and one sentence: does the output lead or lag?</p>
+        <textarea id="t2Answer" placeholder="Write your observation here..."></textarea>
+      </div>
+      <div class="task">
+        <span class="badge">Task 3 · RL</span>
+        <h4>Inductor output behavior</h4>
+        <p>Set <b>R = 100 Ω</b>, <b>L = 100 mH</b>, <b>f = 100 Hz</b>. Determine whether the output across the inductor leads or lags the input.</p>
+        <p><b>Deliver:</b> one screenshot and the output phase angle.</p>
+        <input id="t3Answer" type="text" placeholder="Output phase angle...">
+      </div>
+      <div class="task">
+        <span class="badge">Task 4 · RLC</span>
+        <h4>Find resonance</h4>
+        <p>Using the default series RLC values, move the operating frequency until the current becomes maximal and the phase approaches 0°.</p>
+        <p><b>Deliver:</b> one screenshot and the measured resonant frequency.</p>
+        <input id="t4Answer" type="text" placeholder="Resonant frequency...">
+      </div>
+      <div class="task">
+        <span class="badge">Task 5 · Design challenge</span>
+        <h4>Target a specific cutoff</h4>
+        <p>Choose values of R and C such that the RC cutoff frequency is close to <b>1 kHz</b>.</p>
+        <p><b>Deliver:</b> the selected R and C, plus a screenshot.</p>
+        <textarea id="t5Answer" placeholder="Example: R = ..., C = ..."></textarea>
+      </div>
+      <div class="task">
+        <span class="badge">Task 6 · Diagnostic thinking</span>
+        <h4>Interpretation</h4>
+        <p>Explain, in one or two sentences, why resonance can be dangerous in practical electrical equipment.</p>
+        <p><b>Deliver:</b> a short written explanation.</p>
+        <textarea id="t6Answer" placeholder="Why can resonance be dangerous?"></textarea>
+      </div>
+    </div>
+    <div class="actions"><button class="btn primary" id="checkTasks">Check sample answers</button><button class="btn" id="clearTasks">Clear fields</button></div>
+    <div id="taskFeedback" class="note hidden"></div>
+  </section>
+
+  <section class="card">
+    <div class="section-index">06 · Case studies</div>
+    <h2>Why these ideas matter in equipment monitoring and diagnosis</h2>
+    <div class="three">
+      <div class="case"><h3>Capacitor banks and power factor</h3><p>Phase shift between voltage and current is central to reactive power compensation. Monitoring phase angle helps detect abnormal compensation or capacitor degradation.</p></div>
+      <div class="case"><h3>Sensor conditioning circuits</h3><p>RC and RL networks are frequently used in analog conditioning. Their phase and magnitude behavior affect timing, filtering, and diagnosis of sensor signal quality.</p></div>
+      <div class="case"><h3>Resonance in installations</h3><p>Unexpected resonance may amplify current or voltage, create overheating, disturb measurements, and accelerate the aging of components.</p></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-index">07 · Quick check</div>
+    <h2>Short quiz</h2>
+    <div class="quiz" data-answer="b">
+      <p><b>1.</b> If φ = +90°, what does it mean in this simulator?</p>
+      <label><input type="radio" name="q1" value="a"> u₂ lags u₁ by 90°</label>
+      <label><input type="radio" name="q1" value="b"> u₂ leads u₁ by 90°</label>
+      <label><input type="radio" name="q1" value="c"> u₁ and u₂ have different frequencies</label>
+    </div>
+    <div class="quiz" data-answer="c">
+      <p><b>2.</b> At resonance in a series RLC circuit:</p>
+      <label><input type="radio" name="q2" value="a"> the current becomes zero</label>
+      <label><input type="radio" name="q2" value="b"> the phase shift is ±90°</label>
+      <label><input type="radio" name="q2" value="c"> X<sub>L</sub> = X<sub>C</sub> and current is maximal</label>
+    </div>
+    <div class="quiz" data-answer="a">
+      <p><b>3.</b> In the RC case with output across the capacitor, the output usually:</p>
+      <label><input type="radio" name="q3" value="a"> lags the input</label>
+      <label><input type="radio" name="q3" value="b"> leads the input</label>
+      <label><input type="radio" name="q3" value="c"> has no relationship to the input phase</label>
+    </div>
+    <div class="quiz" data-answer="b">
+      <p><b>4.</b> If two signals have different frequencies, their relative phase:</p>
+      <label><input type="radio" name="q4" value="a"> stays permanently constant</label>
+      <label><input type="radio" name="q4" value="b"> slips over time</label>
+      <label><input type="radio" name="q4" value="c"> instantly becomes zero</label>
+    </div>
+    <div class="actions"><button class="btn primary" id="gradeQuiz">Grade quiz</button><button class="btn" id="clearQuiz">Clear quiz</button></div>
+    <div id="quizResult" class="note hidden"></div>
+  </section>
+
+  <div class="footer">Standalone HTML lesson · SVG-based illustrations · works locally in a browser · prepared for the course “Monitoring and Diagnosis of Electrical Equipment”</div>
+</main>
+
+<script>
+(()=>{
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const fmt = (n,d=2)=> Number(n).toLocaleString('en-US',{minimumFractionDigits:d, maximumFractionDigits:d});
+  const colors = {a:'#55d6ff', b:'#ffbd69', grid:'#2b465d', text:'#abc2d6', green:'#6ae0ae', red:'#ff7a8b'};
+  const signal = {phase:60, f:50, a1:1, a2:1, running:true, speed:1, time:0};
+
+  function path(points){ return points.map((p,i)=>(i?'L':'M')+p[0].toFixed(2)+' '+p[1].toFixed(2)).join(' '); }
+  function grid(w,h,l=45,r=15,t=20,b=30,cols=8,rows=4){
+    let out='';
+    for(let i=0;i<=cols;i++){
+      const x=l+(w-l-r)*i/cols;
+      out += `<line x1="${x}" y1="${t}" x2="${x}" y2="${h-b}" stroke="${colors.grid}" stroke-width="${i===0?1.4:.7}"/>`;
+    }
+    for(let j=0;j<=rows;j++){
+      const y=t+(h-t-b)*j/rows;
+      out += `<line x1="${l}" y1="${y}" x2="${w-r}" y2="${y}" stroke="${colors.grid}" stroke-width="${j===rows/2?1.6:.7}"/>`;
+    }
+    return out;
+  }
+
+  function drawSignalExplorer(){
+    const phi = signal.phase*Math.PI/180;
+    const w=760,h=315,L=52,R=20,T=22,B=40,W=w-L-R,H=h-T-B,mid=T+H/2,scale=H/2/1.7;
+    const cycles=2.2;
+    const p1=[],p2=[];
+    for(let i=0;i<=850;i++){
+      const u=i/850, x=L+u*W, theta=u*cycles*2*Math.PI + signal.time;
+      p1.push([x, mid-scale*signal.a1*Math.sin(theta)]);
+      p2.push([x, mid-scale*signal.a2*Math.sin(theta+phi)]);
+    }
+    let x1=L+((2*Math.PI*Math.ceil(signal.time/(2*Math.PI))-signal.time)/(cycles*2*Math.PI))*W;
+    while(x1<L+40)x1+=W/cycles;
+    while(x1>L+W-110)x1-=W/cycles;
+    const x2=x1-phi/(cycles*2*Math.PI)*W;
+    let bracket='';
+    if(x2>L && x2<L+W){
+      const a=Math.min(x1,x2), b=Math.max(x1,x2), y=mid-scale*1.47;
+      bracket=`<line x1="${x1}" y1="${T+5}" x2="${x1}" y2="${h-B}" stroke="${colors.a}" stroke-dasharray="5 5" opacity=".7"/>
+               <line x1="${x2}" y1="${T+5}" x2="${x2}" y2="${h-B}" stroke="${colors.b}" stroke-dasharray="5 5" opacity=".7"/>
+               <path d="M${a} ${y+8}V${y}H${b}V${y+8}" fill="none" stroke="#f5f8fb" stroke-width="1.5"/>
+               <text x="${(a+b)/2}" y="${y-8}" fill="#f8fbff" font-size="14" text-anchor="middle">Δt</text>`;
+    }
+    let labels='';
+    for(let i=0;i<=4;i++){
+      const x=L+W*i/4;
+      labels += `<text x="${x}" y="${h-12}" fill="${colors.text}" font-size="13" text-anchor="middle">${fmt(i/4*cycles*1000/signal.f,1)} ms</text>`;
+    }
+    $('waveSvg').innerHTML = grid(w,h,L,R,T,B) +
+      `<path d="${path(p1)}" fill="none" stroke="${colors.a}" stroke-width="3.3"/>
+       <path d="${path(p2)}" fill="none" stroke="${colors.b}" stroke-width="3.3"/>
+       ${bracket}${labels}
+       <text x="12" y="${mid-7}" fill="${colors.text}" font-size="13" transform="rotate(-90 12 ${mid-7})">Amplitude</text>`;
+
+    const cx=175, cy=125, rad=82;
+    const angle=signal.time, other=angle+phi;
+    function ray(a,c,tag,r=rad){
+      const xx=cx+r*Math.cos(a), yy=cy-r*Math.sin(a);
+      return `<line x1="${cx}" y1="${cy}" x2="${xx}" y2="${yy}" stroke="${c}" stroke-width="4" stroke-linecap="round"/>
+              <circle cx="${xx}" cy="${yy}" r="5" fill="${c}"/>
+              <text x="${xx+10}" y="${yy-8}" fill="${c}" font-size="17" font-weight="700">${tag}</text>`;
+    }
+    let arc='';
+    if(Math.abs(phi)>1e-6){
+      const pts=[];
+      for(let i=0;i<=50;i++){
+        const a=angle+phi*i/50;
+        pts.push([cx+38*Math.cos(a), cy-38*Math.sin(a)]);
+      }
+      arc=`<path d="${path(pts)}" fill="none" stroke="#f4f4f4" stroke-width="2" stroke-dasharray="3 3"/>`;
+    }
+    $('phasorSvg').innerHTML =
+      `<circle cx="${cx}" cy="${cy}" r="${rad}" fill="none" stroke="#406077" stroke-width="1.5"/>
+       <line x1="${cx-114}" y1="${cy}" x2="${cx+114}" y2="${cy}" stroke="${colors.grid}"/>
+       <line x1="${cx}" y1="${cy-110}" x2="${cx}" y2="${cy+110}" stroke="${colors.grid}"/>
+       ${arc}
+       ${ray(angle,colors.a,'u₁')}
+       ${ray(other,colors.b,'u₂')}
+       <text x="350" y="76" fill="${colors.a}" font-size="24" font-weight="700">θ₁ = ωt</text>
+       <text x="350" y="115" fill="${colors.b}" font-size="24" font-weight="700">θ₂ = ωt + φ</text>
+       <text x="350" y="160" fill="white" font-size="28" font-weight="700">φ = ${signal.phase>0?'+':''}${signal.phase}°</text>
+       <text x="350" y="193" fill="#acc8d9" font-size="16">${signal.phase>0?'u₂ leads u₁':signal.phase<0?'u₂ lags u₁':'signals are in phase'}</text>`;
+
+    $('phaseOut').textContent = `${signal.phase}°`;
+    $('freqOut').textContent = `${signal.f} Hz`;
+    $('amp1Out').textContent = fmt(signal.a1,1);
+    $('amp2Out').textContent = fmt(signal.a2,1);
+    $('periodOut').textContent = `${fmt(1000/signal.f,2)} ms`;
+    $('dtOut').textContent = `${fmt(-signal.phase/360/signal.f*1000,2)} ms`;
+    $('radOut').textContent = `${fmt(phi,3)} rad`;
+    $('statusOut').textContent = signal.phase>0 ? 'u₂ leads u₁' : signal.phase<0 ? 'u₂ lags u₁' : 'in phase';
+  }
+
+  function signalInputChanged(){
+    signal.phase = +$('phase').value;
+    signal.f = +$('freq').value;
+    signal.a1 = +$('amp1').value;
+    signal.a2 = +$('amp2').value;
+    drawSignalExplorer();
+  }
+  ['phase','freq','amp1','amp2'].forEach(id=>$(id).addEventListener('input', signalInputChanged));
+  document.querySelectorAll('.sig-preset').forEach(btn=>btn.addEventListener('click', ()=>{$('phase').value=btn.dataset.phase; signalInputChanged();}));
+  $('playBtn').onclick = ()=>{ signal.running=!signal.running; $('playBtn').textContent = signal.running ? '⏸ Pause' : '▶ Play'; };
+  $('slowBtn').onclick = ()=>{ signal.speed = signal.speed===1 ? 0.25 : 1; $('slowBtn').textContent = signal.speed===1 ? '🐢 0.25×' : '⚡ 1×'; };
+  $('resetBtn').onclick = ()=>{ $('phase').value=60; $('freq').value=50; $('amp1').value=1; $('amp2').value=1; signal.time=0; signal.speed=1; signal.running=true; $('playBtn').textContent='⏸ Pause'; $('slowBtn').textContent='🐢 0.25×'; signalInputChanged(); };
+
+  function drawComparisonWave(svgId, gain, phase){
+    const svg=$(svgId), w=740,h=230,L=25,R=35,T=15,B=15,W=w-L-R,H=h-T-B,mid=T+H/2,scale=H/2/1.55;
+    const p1=[], p2=[];
+    for(let i=0;i<=700;i++){
+      const u=i/700, x=L+u*W, a=u*Math.PI*8;
+      p1.push([x, mid-scale*Math.sin(a)]);
+      p2.push([x, mid-scale*gain*Math.sin(a+phase)]);
+    }
+    svg.innerHTML = grid(w,h,L,R,T,B,8,4) +
+      `<path d="${path(p1)}" fill="none" stroke="${colors.a}" stroke-width="3"/>
+       <path d="${path(p2)}" fill="none" stroke="${colors.b}" stroke-width="3"/>
+       <text x="520" y="24" fill="${colors.a}" font-size="15">Input</text>
+       <text x="610" y="24" fill="${colors.b}" font-size="15">Output</text>`;
+  }
+
+  function drawRc(){
+    const R = Math.max(1, +$('rcR').value || 1);
+    const C = Math.max(1e-12, (+$('rcC').value || 0.1)*1e-9);
+    const f = Math.max(0.1, +$('rcF').value || 0.1);
+    const x = 2*Math.PI*f*R*C;
+    const fc = 1/(2*Math.PI*R*C);
+    const gain = 1/Math.sqrt(1+x*x);
+    const phi = -Math.atan(x);
+    const dt = -phi/(2*Math.PI*f)*1000;
+    $('rcCutoff').textContent = `${fmt(fc,2)} Hz`;
+    $('rcGain').textContent = fmt(gain,3);
+    $('rcPhase').textContent = `${fmt(phi*180/Math.PI,2)}°`;
+    $('rcDt').textContent = `${fmt(dt,3)} ms`;
+    $('rcExplain').innerHTML = 'The capacitor branch output <b>lags</b> the input. The capacitor is drawn on a clear vertical branch to make the topology easy to read.';
+    $('rcCircuitSvg').innerHTML = `
+      <g fill="none" stroke="#dcebf7" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round">
+        <circle cx="70" cy="145" r="26" />
+        <path d="M58 145q6 -18 12 0t12 0" />
+        <path d="M70 119V92H175" />
+        <path d="M175 92l12 -12 12 24 12 -24 12 24 12 -24 12 24 12 -12H305" />
+        <path d="M305 92H520V150" />
+        <line x1="500" y1="150" x2="540" y2="150" />
+        <line x1="500" y1="170" x2="540" y2="170" />
+        <path d="M520 170V195H70V171" />
+        <path d="M70 171V145" />
+      </g>
+      <circle cx="520" cy="92" r="5" fill="${colors.b}" />
+      <text x="34" y="78" fill="${colors.a}" font-size="18">Uin</text>
+      <text x="220" y="58" fill="#fff" font-size="19" font-weight="700">R</text>
+      <text x="548" y="164" fill="#fff" font-size="19" font-weight="700">C</text>
+      <text x="528" y="82" fill="${colors.b}" font-size="18">Uout</text>
+      <text x="295" y="26" fill="#fff" font-size="19" font-weight="700">RC low-pass</text>
+      <text x="285" y="51" fill="#acc2d4" font-size="15">R = ${fmt(R,0)} Ω · C = ${fmt(C*1e9,2)} nF</text>`;
+    drawComparisonWave('rcWaveSvg', gain, phi);
+  }
+  $('rcReset').onclick = ()=>{ $('rcR').value=1000; $('rcC').value=100; $('rcF').value=1000; drawRc(); };
+  ['rcR','rcC','rcF'].forEach(id=>$(id).addEventListener('input', drawRc));
+
+  function drawRl(){
+    const R = Math.max(1e-6, +$('rlR').value || 1);
+    const L = Math.max(1e-9, (+$('rlL').value || 1)*1e-3);
+    const f = Math.max(0.1, +$('rlF').value || 0.1);
+    const x = 2*Math.PI*f*L/R;
+    const fc = R/(2*Math.PI*L);
+    const gain = x/Math.sqrt(1+x*x);
+    const phi = Math.PI/2 - Math.atan(x);
+    const dt = -phi/(2*Math.PI*f)*1000;
+    $('rlCorner').textContent = `${fmt(fc,2)} Hz`;
+    $('rlGain').textContent = fmt(gain,3);
+    $('rlPhase').textContent = `${fmt(phi*180/Math.PI,2)}°`;
+    $('rlDt').textContent = `${fmt(dt,3)} ms`;
+    $('rlCircuitSvg').innerHTML = `
+      <g fill="none" stroke="#dcebf7" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round">
+        <circle cx="70" cy="145" r="26" />
+        <path d="M58 145q6 -18 12 0t12 0" />
+        <path d="M70 119V92H185" />
+        <path d="M185 92l12 -12 12 24 12 -24 12 24 12 -24 12 24 12 -12H315" />
+        <path d="M315 92q14 0 14 12t14 12t14 -12t14 -12t14 12t14 12t14 -12t14 -12" />
+        <path d="M427 92H520V195H70V171" />
+        <path d="M70 171V145" />
+      </g>
+      <circle cx="315" cy="92" r="5" fill="${colors.b}" />
+      <text x="34" y="78" fill="${colors.a}" font-size="18">Uin</text>
+      <text x="225" y="58" fill="#fff" font-size="19" font-weight="700">R</text>
+      <text x="372" y="58" fill="#fff" font-size="19" font-weight="700">L</text>
+      <text x="323" y="82" fill="${colors.b}" font-size="18">Uout</text>
+      <text x="286" y="26" fill="#fff" font-size="19" font-weight="700">Series RL · output on inductor</text>
+      <text x="293" y="51" fill="#acc2d4" font-size="15">R = ${fmt(R,0)} Ω · L = ${fmt(L*1000,2)} mH</text>`;
+    drawComparisonWave('rlWaveSvg', gain, phi);
+  }
+  $('rlReset').onclick = ()=>{ $('rlR').value=100; $('rlL').value=100; $('rlF').value=100; drawRl(); };
+  ['rlR','rlL','rlF'].forEach(id=>$(id).addEventListener('input', drawRl));
+
+  function drawRlc(){
+    const R = Math.max(1e-6, +$('rlcR').value || 1);
+    const L = Math.max(1e-9, (+$('rlcL').value || 1)*1e-3);
+    const C = Math.max(1e-12, (+$('rlcC').value || 1)*1e-6);
+    const f0 = 1/(2*Math.PI*Math.sqrt(L*C));
+    $('rlcF0').textContent = `${fmt(f0,2)} Hz`;
+    $('rlcFreq').min = Math.max(10, Math.floor(f0/20));
+    $('rlcFreq').max = Math.max(3000, Math.ceil(f0*10));
+    if(+$('rlcFreq').value > +$('rlcFreq').max) $('rlcFreq').value = $('rlcFreq').max;
+    const f = +$('rlcFreq').value;
+    $('rlcFreqOut').textContent = `${fmt(f,0)} Hz`;
+    const w=2*Math.PI*f, Xl=w*L, Xc=1/(w*C), X=Xl-Xc, Z=Math.sqrt(R*R+X*X), I=1/Z, phi = -Math.atan2(X,R);
+    $('rlcZ').textContent = `${fmt(Z,2)} Ω`;
+    $('rlcI').textContent = `${fmt(I,4)} A`;
+    $('rlcPhi').textContent = `${fmt(phi*180/Math.PI,2)}°`;
+    $('rlcCircuitSvg').innerHTML = `
+      <g fill="none" stroke="#dcebf7" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round">
+        <circle cx="70" cy="145" r="26" />
+        <path d="M58 145q6 -18 12 0t12 0" />
+        <path d="M70 119V92H165" />
+        <path d="M165 92l12 -12 12 24 12 -24 12 24 12 -24 12 24 12 -12H285" />
+        <path d="M285 92q14 0 14 12t14 12t14 -12t14 -12t14 12t14 12t14 -12t14 -12H425" />
+        <line x1="425" y1="72" x2="425" y2="112" />
+        <line x1="445" y1="72" x2="445" y2="112" />
+        <path d="M445 92H520V195H70V171" />
+        <path d="M70 171V145" />
+      </g>
+      <text x="34" y="78" fill="${colors.a}" font-size="18">Uin</text>
+      <text x="205" y="58" fill="#fff" font-size="19" font-weight="700">R</text>
+      <text x="341" y="58" fill="#fff" font-size="19" font-weight="700">L</text>
+      <text x="431" y="58" fill="#fff" font-size="19" font-weight="700">C</text>
+      <text x="270" y="26" fill="#fff" font-size="19" font-weight="700">Series RLC circuit</text>
+      <text x="240" y="51" fill="#acc2d4" font-size="15">R = ${fmt(R,0)} Ω · L = ${fmt(L*1000,2)} mH · C = ${fmt(C*1e6,2)} µF</text>`;
+
+    const magSvg = $('rlcMagSvg');
+    const phaseSvg = $('rlcPhaseSvg');
+    const W1=760,H1=260,ML=55,MR=20,MT=15,MB=38,plotW=W1-ML-MR,plotH=H1-MT-MB;
+    const fMin = Math.max(1, f0/10), fMax = f0*10;
+    const pointsI=[], pointsPhi=[];
+    let maxI=0;
+    for(let i=0;i<=500;i++){
+      const ff = fMin*Math.pow(fMax/fMin, i/500);
+      const ww=2*Math.PI*ff, xx=ww*L-1/(ww*C), zz=Math.sqrt(R*R+xx*xx), ii=1/zz;
+      if(ii>maxI) maxI=ii;
+      pointsI.push({f:ff,i:ii});
+      pointsPhi.push({f:ff,p:(-Math.atan2(xx,R))*180/Math.PI});
+    }
+    const toX = ff => ML + (Math.log10(ff)-Math.log10(fMin))/(Math.log10(fMax)-Math.log10(fMin))*plotW;
+    const toYI = ii => MT + plotH*(1-ii/maxI);
+    const toYP = p => MT + plotH*(1-(p+90)/180);
+    const pI = pointsI.map((pt,idx)=>(idx?'L':'M')+toX(pt.f).toFixed(2)+' '+toYI(pt.i).toFixed(2)).join(' ');
+    const pP = pointsPhi.map((pt,idx)=>(idx?'L':'M')+toX(pt.f).toFixed(2)+' '+toYP(pt.p).toFixed(2)).join(' ');
+    let gridLines='';
+    const decadeMarks=[1,2,5];
+    const minDec=Math.floor(Math.log10(fMin)), maxDec=Math.ceil(Math.log10(fMax));
+    for(let d=minDec; d<=maxDec; d++){
+      for(const m of decadeMarks){
+        const ff = m*Math.pow(10,d);
+        if(ff>=fMin && ff<=fMax){
+          const x=toX(ff);
+          gridLines += `<line x1="${x}" y1="${MT}" x2="${x}" y2="${H1-MB}" stroke="${colors.grid}" stroke-width="${m===1?1.2:.6}"/>
+                        <text x="${x}" y="${H1-14}" fill="${colors.text}" font-size="12" text-anchor="middle">${ff<1000?fmt(ff,0):fmt(ff/1000,1)+'k'}</text>`;
+        }
+      }
+    }
+    for(let j=0;j<=4;j++){
+      const y=MT+plotH*j/4;
+      gridLines += `<line x1="${ML}" y1="${y}" x2="${W1-MR}" y2="${y}" stroke="${colors.grid}" stroke-width=".7"/>`;
+    }
+    const markerX=toX(f), markerYI=toYI(I), markerYP=toYP(phi*180/Math.PI), resX=toX(f0);
+    magSvg.innerHTML = `${gridLines}<path d="${pI}" fill="none" stroke="${colors.a}" stroke-width="3"/>
+      <line x1="${resX}" y1="${MT}" x2="${resX}" y2="${H1-MB}" stroke="${colors.green}" stroke-dasharray="6 5"/>
+      <line x1="${markerX}" y1="${MT}" x2="${markerX}" y2="${H1-MB}" stroke="${colors.b}" stroke-dasharray="6 5"/>
+      <circle cx="${markerX}" cy="${markerYI}" r="5" fill="${colors.b}"/>
+      <text x="${resX+8}" y="${MT+20}" fill="${colors.green}" font-size="14">f₀</text>
+      <text x="${markerX+8}" y="${markerYI-8}" fill="${colors.b}" font-size="14">selected f</text>
+      <text x="18" y="26" fill="#fff" font-size="14">I magnitude (A for 1 V)</text>`;
+    phaseSvg.innerHTML = `${gridLines}<path d="${pP}" fill="none" stroke="${colors.violet || '#c49cff'}" stroke-width="3"/>
+      <line x1="${resX}" y1="${MT}" x2="${resX}" y2="${240-38}" stroke="${colors.green}" stroke-dasharray="6 5"/>
+      <line x1="${markerX}" y1="${MT}" x2="${markerX}" y2="${240-38}" stroke="${colors.b}" stroke-dasharray="6 5"/>
+      <circle cx="${markerX}" cy="${markerYP}" r="5" fill="${colors.b}"/>
+      <text x="18" y="26" fill="#fff" font-size="14">Current phase angle (deg)</text>
+      <text x="${markerX+8}" y="${markerYP-8}" fill="${colors.b}" font-size="14">${fmt(phi*180/Math.PI,1)}°</text>`;
+  }
+  $('rlcSetRes').onclick = ()=>{ const R=Math.max(1e-6,+$('rlcR').value||1), L=Math.max(1e-9,(+$('rlcL').value||1)*1e-3), C=Math.max(1e-12,(+$('rlcC').value||1)*1e-6); const f0=1/(2*Math.PI*Math.sqrt(L*C)); $('rlcFreq').value=Math.round(f0); drawRlc(); };
+  $('rlcReset').onclick = ()=>{ $('rlcR').value=30; $('rlcL').value=50; $('rlcC').value=10; $('rlcFreq').value=225; drawRlc(); };
+  ['rlcR','rlcL','rlcC','rlcFreq'].forEach(id=>$(id).addEventListener('input', drawRlc));
+
+  document.querySelectorAll('.circuit-tab').forEach(btn=>btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.circuit-tab').forEach(b=>b.classList.toggle('active', b===btn));
+    document.querySelectorAll('.circuit-panel').forEach(panel=>panel.classList.add('hidden'));
+    $('panel-'+btn.dataset.circuit).classList.remove('hidden');
+  }));
+
+  $('checkTasks').onclick = ()=>{
+    const feedback = $('taskFeedback');
+    feedback.classList.remove('hidden');
+    feedback.innerHTML = `
+      <b>Sample guidance:</b><br>
+      • Task 1: for −90° at 50 Hz, Δt = <b>+5.00 ms</b> (u₂ lags).<br>
+      • Task 2: in the RC case with output on C, the output <b>lags</b> and its magnitude drops above cutoff.<br>
+      • Task 3: in the default RL case, the output across the inductor <b>leads</b>.<br>
+      • Task 4: with the default RLC values, resonance is close to <b>${$('rlcF0').textContent}</b>.<br>
+      • Task 5: one valid design target for about 1 kHz is, for example, <b>R ≈ 1.59 kΩ and C = 100 nF</b>, or any equivalent pair.<br>
+      • Task 6: resonance can cause <b>overcurrent, overheating, excessive voltage stress, vibration, and measurement distortion</b>.`;
+  };
+  $('clearTasks').onclick = ()=>{
+    ['t1Answer','t2Answer','t3Answer','t4Answer','t5Answer','t6Answer'].forEach(id=>$(id).value='');
+    $('taskFeedback').classList.add('hidden');
+  };
+
+  $('gradeQuiz').onclick = ()=>{
+    let score=0, total=0, all=true;
+    document.querySelectorAll('.quiz').forEach((q,idx)=>{
+      total++;
+      const answer=q.dataset.answer;
+      const checked=q.querySelector(`input[name=q${idx+1}]:checked`);
+      if(!checked){ all=false; q.style.borderColor='#ffbd69'; }
+      else{
+        const ok = checked.value===answer;
+        q.style.borderColor = ok ? '#6ae0ae' : '#ff7a8b';
+        if(ok) score++;
+      }
+    });
+    const box = $('quizResult');
+    box.classList.remove('hidden');
+    box.innerHTML = all ? `<b>Result:</b> ${score}/${total} correct. ${score===total?'Excellent.':'Review the highlighted items and try again.'}` : 'Please answer all questions before grading the quiz.';
+  };
+  $('clearQuiz').onclick = ()=>{
+    document.querySelectorAll('.quiz input').forEach(el=>el.checked=false);
+    document.querySelectorAll('.quiz').forEach(q=>q.style.borderColor='#3a5873');
+    $('quizResult').classList.add('hidden');
+  };
+
+  function animate(ts){
+    if(!animate.last) animate.last = ts;
+    const dt = Math.min((ts-animate.last)/1000, 0.07);
+    animate.last = ts;
+    if(signal.running){ signal.time = (signal.time + dt*signal.speed) % (2*Math.PI*1000); }
+    drawSignalExplorer();
+    requestAnimationFrame(animate);
+  }
+
+  signalInputChanged();
+  drawRc();
+  drawRl();
+  drawRlc();
+  requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>
