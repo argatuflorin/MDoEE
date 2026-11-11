@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MDoEE · L07 · Mini-SCADA – Virtual Supervisory Laboratory</title>
+<style>
+:root{--bg:#d9dcdf;--panel:#eceef0;--ink:#1f2328;--muted:#5a6270;--line:#b8bec6;--navy:#1e2d45;--blue:#2f6fa8;--alarm:#c62828;--warn:#e08a00;--ok:#2e7d32;--mono:Consolas,"SFMono-Regular",Menlo,monospace}
+*{box-sizing:border-box}body{margin:0;font:14px/1.45 "Segoe UI",system-ui,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:var(--navy);color:#fff;padding:10px 18px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
+header h1{font:600 18px/1.2 Georgia,serif;margin:0}header small{color:#c9d3e0}
+a.back{color:#c9d3e0;text-decoration:none;font-size:13px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.bar label{font-size:12px;color:#c9d3e0}.bar input[type=number]{width:56px;padding:3px;font:600 14px var(--mono)}
+main{display:grid;grid-template-columns:repeat(12,1fr);gap:10px;padding:10px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px;min-width:0}
+section h2{font:600 13px/1 "Segoe UI",system-ui;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 8px}
+.c4{grid-column:span 4}.c5{grid-column:span 5}.c7{grid-column:span 7}.c8{grid-column:span 8}.c6{grid-column:span 6}.c12{grid-column:span 12}
+@media(max-width:1000px){.c4,.c5,.c6,.c7,.c8{grid-column:span 12}}
+.vals{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.v{background:#fff;border:1px solid var(--line);border-radius:3px;padding:6px;text-align:center}
+.v b{display:block;font:600 20px var(--mono)}.v span{font-size:11px;color:var(--muted)}
+.v.bad{border-color:var(--alarm);background:#fdecea;color:var(--alarm)}
+button{font:600 13px "Segoe UI",system-ui;padding:6px 10px;border:1px solid #8c939c;border-radius:3px;background:#f7f8f9;cursor:pointer}
+button:hover{background:#fff}button.red{border-color:var(--alarm);color:var(--alarm)}
+.ctl{display:grid;grid-template-columns:auto 1fr auto;gap:6px 8px;align-items:center;font-size:13px}
+.ctl output{font:600 13px var(--mono);min-width:64px;text-align:right}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{border-bottom:1px solid var(--line);padding:3px 4px;text-align:left}
+th{color:var(--muted);font-weight:600}td.m{font-family:var(--mono)}
+.frame{font:12px/1.6 var(--mono);background:#fff;border:1px solid var(--line);padding:6px;word-break:break-all}
+.frame i{font-style:normal;padding:0 2px;border-radius:2px}
+.a1{background:#dfe7f1}.a2{background:#e3efe3}.a3{background:#f6ebd9}.a4{background:#ebe3f2}.a5{background:#eee}
+.alm td{font-size:12px}.st-AU{color:var(--alarm);font-weight:700}.st-AA{color:var(--warn);font-weight:700}.st-CU{color:var(--muted);font-weight:700}
+canvas{width:100%;height:190px;background:#fff;border:1px solid var(--line)}
+#mqtt{white-space:pre-wrap}#soe{height:170px;overflow:auto;font:12px/1.5 var(--mono);background:#fff;border:1px solid var(--line);padding:4px}
+.note{font-size:12px;color:var(--muted);margin:6px 0 0}
+svg text{font:12px "Segoe UI",system-ui}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>MDoEE · L07 · Mini-SCADA</h1><small>Virtual supervisory laboratory · simulated 0.4 kV feeder, Modbus register map, HMI, alarms, sequence of events</small></div>
+  <div class="bar">
+    <label for="N">Variant N</label><input id="N" type="number" min="1" max="30" value="7">
+    <button id="play">Pause</button><a class="back" href="../index.html">← MDoEE virtual laboratory</a>
+  </div>
+</header>
+<main>
+<section class="c7"><h2>HMI mimic · feeder F1</h2>
+ <svg id="mimic" viewBox="0 0 640 210" width="100%" role="img" aria-label="Feeder mimic">
+  <rect x="10" y="70" width="90" height="70" rx="4" fill="#fff" stroke="#8c939c"/><text x="55" y="100" text-anchor="middle">Source</text><text x="55" y="118" text-anchor="middle" id="srcTxt">230 V</text>
+  <line x1="100" y1="105" x2="250" y2="105" stroke="#1f2328" stroke-width="4"/>
+  <rect id="brk" x="250" y="85" width="44" height="40" fill="#1f2328" stroke="#1f2328"/><text x="272" y="145" text-anchor="middle">Q1</text><text id="brkTxt" x="272" y="72" text-anchor="middle" font-weight="700">CLOSED</text>
+  <line id="feed" x1="294" y1="105" x2="470" y2="105" stroke="#1f2328" stroke-width="4"/>
+  <rect x="470" y="60" width="150" height="90" rx="4" fill="#fff" stroke="#8c939c"/><text x="545" y="88" text-anchor="middle">Load</text><text x="545" y="108" text-anchor="middle" id="loadTxt">100 %</text><text x="545" y="128" text-anchor="middle" id="pTxt">P = 0 kW</text>
+  <text x="380" y="190" text-anchor="middle" id="meterTxt" fill="#5a6270">Meter (Modbus unit 7)</text><circle cx="380" cy="105" r="9" fill="#fff" stroke="#2f6fa8" stroke-width="3"/>
+ </svg>
+ <div class="vals" id="vals"></div>
+</section>
+<section class="c5"><h2>Operator controls</h2>
+ <div class="ctl">
+  <label for="us">Source voltage</label><input id="us" type="range" min="190" max="250" step="1" value="230"><output id="usO">230 V</output>
+  <label for="ld">Load (% of nominal)</label><input id="ld" type="range" min="0" max="200" step="5" value="100"><output id="ldO">100 %</output>
+  <label for="ub">Load unbalance</label><input id="ub" type="range" min="0" max="12" step="0.5" value="0"><output id="ubO">0 %</output>
+ </div>
+ <p style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 0">
+  <button class="red" id="fault">Fault on L2</button><button id="openB">Open Q1</button><button id="closeB">Close Q1</button><button id="ack">Acknowledge all</button><button id="reset">Reset</button>
+ </p>
+ <p class="note" id="varTxt"></p>
+</section>
+<section class="c6"><h2>Modbus register map (holding registers, float32 big-endian)</h2>
+ <table id="regs"><thead><tr><th>Address</th><th>Quantity</th><th>Hex</th><th>Value</th></tr></thead><tbody></tbody></table>
+</section>
+<section class="c6"><h2>Last poll · Modbus RTU frames</h2>
+ <div class="frame" id="req"></div><div style="height:6px"></div><div class="frame" id="rsp"></div>
+ <p class="note"><i class="a1">address</i> <i class="a2">function</i> <i class="a3">start / byte count</i> <i class="a4">quantity / data</i> <i class="a5">CRC-16</i> – CRC computed live (Modbus polynomial 0xA001).</p>
+</section>
+<section class="c8"><h2>Trend · last 60 s</h2><canvas id="trend" width="900" height="190"></canvas>
+ <p class="note">Grey lines: U1, U2, U3 (V, left scale 150–260 V). Blue: I1 (A, right scale). Red dashed: undervoltage limit 207 V.</p></section>
+<section class="c4"><h2>Alarms</h2>
+ <table class="alm"><thead><tr><th>Alarm</th><th>State</th><th>Since</th></tr></thead><tbody id="alm"></tbody></table>
+ <p class="note">AU = active unacknowledged · AA = active acknowledged · CU = cleared unacknowledged. An alarm is raised only after its delay.</p></section>
+<section class="c6"><h2>Sequence of events (source time stamps)</h2><div id="soe"></div></section>
+<section class="c6"><h2>Publish · MQTT payload and storage</h2>
+ <div class="frame" id="mqtt"></div><p class="note" id="stor"></p></section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const S={t:0,run:true,brk:1,fault:0,reclose:0,ack:{},al:{},hist:[],soe:[],U:[230,230,230],I:[0,0,0]};
+const alarmsDef=()=>{const N=+$('N').value,Inom=10+N,td=2+(N%4);return[
+ {id:'UV',name:'Undervoltage < 207 V',test:()=>S.brk&&Math.min(...S.U)<207,delay:td},
+ {id:'OC',name:'Overcurrent > '+(1.5*Inom).toFixed(1)+' A',test:()=>Math.max(...S.I)>1.5*Inom,delay:td},
+ {id:'UB',name:'Voltage unbalance > 2 %',test:()=>S.brk&&unb()>2,delay:td},
+ {id:'BO',name:'Breaker Q1 open',test:()=>!S.brk,delay:0}];};
+function unb(){const a=(S.U[0]+S.U[1]+S.U[2])/3;return Math.max(...S.U.map(u=>Math.abs(u-a)))/a*100;}
+function crc16(b){let c=0xFFFF;for(const x of b){c^=x;for(let i=0;i<8;i++)c=(c&1)?(c>>1)^0xA001:c>>1;}return[c&255,c>>8];}
+function f32(v){const d=new DataView(new ArrayBuffer(4));d.setFloat32(0,v);return[d.getUint8(0),d.getUint8(1),d.getUint8(2),d.getUint8(3)];}
+const hx=b=>b.map(x=>x.toString(16).toUpperCase().padStart(2,'0')).join(' ');
+function ts(t){const ms=Math.round(t*1000),s=Math.floor(ms/1000);const h=String(10+Math.floor(s/3600)).padStart(2,'0'),m=String(Math.floor(s/60)%60).padStart(2,'0'),ss=String(s%60).padStart(2,'0');return h+':'+m+':'+ss+'.'+String(ms%1000).padStart(3,'0');}
+function ev(txt){S.soe.unshift(ts(S.t)+'  '+txt);if(S.soe.length>200)S.soe.pop();}
+function variant(){const N=+$('N').value,base=10*(N%10),Inom=10+N,td=2+(N%4);
+ $('varTxt').textContent='Variant N = '+N+': Modbus unit '+N+', register base '+base+', nominal current '+Inom+' A, alarm delay '+td+' s, reclose time 2 s.';
+ $('meterTxt').textContent='Meter (Modbus unit '+N+')';return{N,base,Inom,td};}
+function step(dt){const V=variant();S.t+=dt;
+ const us=+$('us').value, ld=+$('ld').value/100, ub=+$('ub').value/100;
+ if(S.fault>0){S.fault-=dt; if(S.fault<=0.4&&S.brk&&!S.tripped){S.brk=0;S.tripped=1;ev('Q1 TRIP command (overcurrent L2)');S.reclose=2;ev('Q1 OPEN');}}
+ if(!S.brk&&S.reclose>0){S.reclose-=dt;if(S.reclose<=0&&S.tripped){S.brk=1;S.tripped=0;S.fault=0;ev('Q1 auto-reclose → CLOSED');}}
+ const drop=0.035*ld; const k=[1-ub,1,1+ub];
+ S.U=[0,1,2].map(i=>us*(1-drop*k[i]*(S.brk?1:0)));
+ if(S.fault>0&&S.brk){S.U[1]=us*0.34;}
+ S.I=[0,1,2].map(i=>S.brk?V.Inom*ld*k[i]*(S.U[i]/230):0);
+ if(S.fault>0&&S.brk)S.I[1]=V.Inom*6;
+ S.hist.push([...S.U,S.I[0]]);if(S.hist.length>600)S.hist.shift();
+ for(const a of alarmsDef()){const st=S.al[a.id]||{t:0,state:'N'};const on=a.test();
+  if(on){st.t+=dt;if(st.state==='N'&&st.t>=a.delay-1e-9){st.state='AU';st.since=ts(S.t);ev('ALARM '+a.name);} else if(st.state==='CU'){st.state='AU';}}
+  else{st.t=0;if(st.state==='AU'){st.state='CU';ev('cleared: '+a.name);} else if(st.state==='AA'){st.state='N';ev('cleared: '+a.name);}}
+  S.al[a.id]=st;}
+}
+function draw(){const V=variant();
+ const names=['U1','U2','U3','I1','I2','I3'],vals=[...S.U,...S.I],un=['V','V','V','A','A','A'];
+ $('vals').innerHTML=vals.map((v,i)=>{const bad=(i<3&&S.brk&&v<207)||(i>=3&&v>1.5*V.Inom);return '<div class="v'+(bad?' bad':'')+'"><b>'+v.toFixed(1)+'</b><span>'+names[i]+' ('+un[i]+')</span></div>';}).join('');
+ $('srcTxt').textContent=(+$('us').value)+' V';$('loadTxt').textContent=$('ld').value+' %';
+ $('pTxt').textContent='P ≈ '+(S.U.reduce((a,u,i)=>a+u*S.I[i],0)/1000).toFixed(2)+' kW';
+ $('brk').setAttribute('fill',S.brk?'#1f2328':'#fff');$('brkTxt').textContent=S.brk?'CLOSED':'OPEN';$('brkTxt').setAttribute('fill',S.brk?'#1f2328':'#c62828');
+ $('feed').setAttribute('stroke',S.brk?'#1f2328':'#b8bec6');
+ $('usO').textContent=$('us').value+' V';$('ldO').textContent=$('ld').value+' %';$('ubO').textContent=$('ub').value+' %';
+ const q=['U1','U2','U3','I1','I2','I3'];let rows='',data=[];
+ q.forEach((n,i)=>{const b=f32(vals[i]);data.push(...b);rows+='<tr><td class="m">'+(V.base+2*i)+'–'+(V.base+2*i+1)+'</td><td>'+n+'</td><td class="m">'+hx(b.slice(0,2))+' '+hx(b.slice(2))+'</td><td class="m">'+vals[i].toFixed(2)+'</td></tr>';});
+ const almWord=Object.values(S.al).reduce((w,s,i)=>w|((s.state==='AU'||s.state==='AA')?1<<i:0),0);
+ rows+='<tr><td class="m">'+(V.base+12)+'</td><td>Breaker Q1 (1 = closed)</td><td class="m">00 '+hx([S.brk])+'</td><td class="m">'+S.brk+'</td></tr><tr><td class="m">'+(V.base+13)+'</td><td>Alarm word (bits UV, OC, UB, BO)</td><td class="m">00 '+hx([almWord])+'</td><td class="m">'+almWord+'</td></tr>';
+ data.push(0,S.brk,0,almWord); document.querySelector('#regs tbody').innerHTML=rows;
+ const req=[V.N,3,V.base>>8,V.base&255,0,14];const rc=crc16(req);
+ $('req').innerHTML='REQUEST&nbsp; <i class="a1">'+hx([req[0]])+'</i> <i class="a2">03</i> <i class="a3">'+hx(req.slice(2,4))+'</i> <i class="a4">00 0E</i> <i class="a5">'+hx(rc)+'</i>';
+ const rsp=[V.N,3,28,...data];const rr=crc16(rsp);
+ $('rsp').innerHTML='RESPONSE <i class="a1">'+hx([rsp[0]])+'</i> <i class="a2">03</i> <i class="a3">1C</i> <i class="a4">'+hx(data)+'</i> <i class="a5">'+hx(rr)+'</i>';
+ const defs=alarmsDef();$('alm').innerHTML=defs.map(a=>{const s=S.al[a.id]||{state:'N'};return s.state==='N'?'':'<tr><td>'+a.name+'</td><td class="st-'+s.state+'">'+s.state+'</td><td class="m">'+(s.since||'')+'</td></tr>';}).join('')||'<tr><td colspan="3" style="color:#5a6270">No active alarms</td></tr>';
+ $('soe').innerHTML=S.soe.join('<br>');
+ const pl={ts:'2026-11-11T'+ts(S.t)+'Z',q:'good',U1:+S.U[0].toFixed(1),U2:+S.U[1].toFixed(1),U3:+S.U[2].toFixed(1),I1:+S.I[0].toFixed(1),I2:+S.I[1].toFixed(1),I3:+S.I[2].toFixed(1),Q1:S.brk};
+ const js=JSON.stringify(pl);$('mqtt').textContent='topic: mdoee/feeder1/meter'+V.N+'/state  (QoS 0)\n'+js;
+ const B=js.length,day=B*86400/1e6;$('stor').textContent='Message: '+B+' bytes, once per second → '+day.toFixed(1)+' MB/day. Database: 7 values × 31 536 000 s = '+(7*31536000/1e6).toFixed(1)+' million points per year at 1 s.';
+ const c=$('trend'),g=c.getContext('2d'),W=c.width,Hh=c.height;g.clearRect(0,0,W,Hh);
+ const y=v=>Hh-(v-150)/110*Hh, yi=v=>Hh-v/(V.Inom*7)*Hh;
+ g.strokeStyle='#e3e6ea';for(let v=160;v<=250;v+=20){g.beginPath();g.moveTo(0,y(v));g.lineTo(W,y(v));g.stroke();g.fillStyle='#8a8f98';g.fillText(v+' V',4,y(v)-2);}
+ g.setLineDash([6,4]);g.strokeStyle='#c62828';g.beginPath();g.moveTo(0,y(207));g.lineTo(W,y(207));g.stroke();g.setLineDash([]);
+ const n=S.hist.length,X=i=>W-(n-1-i)*W/600;
+ [['#5a6270',0],['#8a8f98',1],['#b8bec6',2]].forEach(([col,k])=>{g.strokeStyle=col;g.lineWidth=1.6;g.beginPath();S.hist.forEach((h,i)=>{i?g.lineTo(X(i),y(h[k])):g.moveTo(X(i),y(h[k]));});g.stroke();});
+ g.strokeStyle='#2f6fa8';g.beginPath();S.hist.forEach((h,i)=>{i?g.lineTo(X(i),yi(h[3])):g.moveTo(X(i),yi(h[3]));});g.stroke();
+}
+let last=performance.now();
+function loop(now){const dt=Math.min(0.25,(now-last)/1000);last=now;if(S.run){let r=dt;while(r>0){const h=Math.min(0.05,r);step(h);r-=h;}draw();}requestAnimationFrame(loop);}
+$('play').onclick=()=>{S.run=!S.run;$('play').textContent=S.run?'Pause':'Play';};
+$('fault').onclick=()=>{if(S.brk&&!S.fault){S.fault=0.5;ev('Fault L2 – overcurrent pick-up');}};
+$('openB').onclick=()=>{if(S.brk){S.brk=0;S.tripped=0;S.reclose=0;ev('Q1 OPEN (operator command)');}};
+$('closeB').onclick=()=>{if(!S.brk){S.brk=1;S.reclose=0;S.tripped=0;ev('Q1 CLOSED (operator command)');}};
+$('ack').onclick=()=>{for(const k in S.al){const s=S.al[k];if(s.state==='AU'){s.state='AA';ev('acknowledged: '+k);}else if(s.state==='CU'){s.state='N';ev('acknowledged: '+k);}}};
+$('reset').onclick=()=>{S.al={};S.soe=[];S.hist=[];S.brk=1;S.fault=0;S.reclose=0;S.tripped=0;$('us').value=230;$('ld').value=100;$('ub').value=0;ev('Reset');};
+$('N').onchange=()=>{let v=Math.round(+$('N').value);$('N').value=Math.min(30,Math.max(1,v||1));ev('Variant N = '+$('N').value);};
+ev('Laboratory started');requestAnimationFrame(loop);
+</script>
+</body>
+</html>
