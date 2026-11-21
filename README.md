@@ -14,3 +14,12 @@ Virtual laboratory — MDoEE: https://argatuflorin.github.io/MDoEE/
 | L07 | Mini-SCADA | [L07/MDoEE_L07_Mini_SCADA_v1.0.html](L07/MDoEE_L07_Mini_SCADA_v1.0.html) |
 
 Laboratory guides are in Moodle with the same code (L0x). The old addresses (`harmonics_3d_build_the_signal(1).html`, `phase_shift_interactive.html`, `phase_shift_lab_EN.html`, `three_phase_interactive.html`, `MDoEE_L05_Three_Phase_Diagnostics_v1.0.html`) redirect to the new ones.
+
+<!-- licenta-citare -->
+## License and citation
+
+© 2026 Florin-Ciprian Argatu ([ORCID 0000-0003-0606-6273](https://orcid.org/0000-0003-0606-6273)), National University of Science and Technology POLITEHNICA Bucharest, Faculty of Electrical Engineering, DMAECS.
+
+This material is licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/): you may share it with attribution, for non-commercial purposes only, and you may not distribute modified versions. See [`LICENSE`](LICENSE).
+
+**How to cite:** use the *Cite this repository* button (top right, from [`CITATION.cff`](CITATION.cff)). A permanent DOI (Zenodo) is added at the first release.
