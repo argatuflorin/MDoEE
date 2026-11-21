@@ -1,0 +1,16 @@
+{
+  "title": "MDoEE – Monitoring and Diagnosis of Electrical Equipment: interactive simulations and virtual laboratory",
+  "upload_type": "software",
+  "description": "Interactive HTML simulations and virtual laboratory for the course Monitoring and Diagnosis of Electrical Equipment (IEC), National University of Science and Technology POLITEHNICA Bucharest, Faculty of Electrical Engineering, DMAECS.",
+  "creators": [
+    {
+      "name": "Argatu, Florin-Ciprian",
+      "orcid": "0000-0003-0606-6273",
+      "affiliation": "National University of Science and Technology POLITEHNICA Bucharest"
+    }
+  ],
+  "license": "cc-by-nc-nd-4.0",
+  "access_right": "open",
+  "language": "eng",
+  "keywords": ["condition monitoring", "electrical equipment diagnosis", "three-phase systems", "virtual laboratory"]
+}
