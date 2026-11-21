@@ -1,4 +1,6 @@
 # MDoEE
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24411935.svg)](https://doi.org/10.5281/zenodo.24411935)
 Interactive simulations and virtual laboratory for Monitoring and Diagnosis of Electrical Equipment (IEC).
 
 Virtual laboratory — MDoEE: https://argatuflorin.github.io/MDoEE/
@@ -22,4 +24,4 @@ Laboratory guides are in Moodle with the same code (L0x). The old addresses (`ha
 
 This material is licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/): you may share it with attribution, for non-commercial purposes only, and you may not distribute modified versions. See [`LICENSE`](LICENSE).
 
-**How to cite:** use the *Cite this repository* button (top right, from [`CITATION.cff`](CITATION.cff)). A permanent DOI (Zenodo) is added at the first release.
+**How to cite:** use the *Cite this repository* button (top right, from [`CITATION.cff`](CITATION.cff)). Permanent DOI (Zenodo, all versions): [10.5281/zenodo.24411935](https://doi.org/10.5281/zenodo.24411935).
