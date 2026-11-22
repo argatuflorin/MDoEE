@@ -14,8 +14,11 @@ Virtual laboratory — MDoEE: https://argatuflorin.github.io/MDoEE/
 | L05 | Three-Phase Diagnostics | [L05/MDoEE_L05_Three_Phase_Diagnostics_v1.0.html](L05/MDoEE_L05_Three_Phase_Diagnostics_v1.0.html) |
 | L06 | Voltage Sags | [L06/MDoEE_L06_Voltage_Sag_v1.0.html](L06/MDoEE_L06_Voltage_Sag_v1.0.html) |
 | L07 | Mini-SCADA | [L07/MDoEE_L07_Mini_SCADA_v1.0.html](L07/MDoEE_L07_Mini_SCADA_v1.0.html) |
+| L08 | Understand Experion | [L08/MDoEE_L08_Understand_Experion_v1.0.html](L08/MDoEE_L08_Understand_Experion_v1.0.html) |
 
 Laboratory guides are in Moodle with the same code (L0x). The old addresses (`harmonics_3d_build_the_signal(1).html`, `phase_shift_interactive.html`, `phase_shift_lab_EN.html`, `three_phase_interactive.html`, `MDoEE_L05_Three_Phase_Diagnostics_v1.0.html`) redirect to the new ones.
+
+Experion®, ControlEdge™ and Honeywell are trademarks of Honeywell International Inc. L08 is an independent teaching simulation, not Honeywell software.
 
 <!-- licenta-citare -->
 ## License and citation
